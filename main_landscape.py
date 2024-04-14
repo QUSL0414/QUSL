@@ -1,9 +1,10 @@
 import concurrent.futures
 import pandas as pd
 import csv
-import data_processing
 import data_load_ladscape
 import os
+from qiskit import QuantumCircuit
+from qiskit.visualization import circuit_drawer
 from os import listdir
 import genetic_algorithm
 from datetime import datetime
@@ -11,12 +12,12 @@ from os.path import isfile, join
 import argparse
 import time
 from constants import NUMBER_OF_GENERATIONS, NUMBER_OF_QUBITS, POPULATION_SIZE, NUM_TRIPLETS
-from toolbox import initialize_toolbox  # also initializes creator
+from toolbox import initialize_toolbox
 
 
 def main():
     dataset = 'landscape'
-    device = 'linux'  # Assume the device is either windows or linux
+    device = 'linux'
     if device == 'window':
         base_path = "D:\pycharm_projects\SLIQ-PENNYLANE_mnist/"
     elif device == 'linux':
@@ -26,20 +27,14 @@ def main():
         raise ValueError("Unknown device type")
 
     start = time.perf_counter()
-
-    """Runs the genetic algorithm based on the global constants"""
-    # Initialize parser
     parser = argparse.ArgumentParser()
 
-    # Adding optional argument
     parser.add_argument("-p", "--POPSIZE", help="Size of the population")
     parser.add_argument("-g", "--NGEN", help="The number of generations")
     parser.add_argument("-q", "--NQUBIT", help="The number of qubits")
     parser.add_argument("-i", "--INDEX", help="Index of desired state")
-    # FIXME -id is illegal (it means -i -d)
     parser.add_argument("-id", "--ID", help="ID of the saved file")
 
-    # Read arguments from command line
     args = parser.parse_args()
     number_of_qubits = int(args.NQUBIT) if args.NQUBIT else NUMBER_OF_QUBITS
     triplets, image_indices = data_load_ladscape.generate_landscape_triplets(base_path, dataset, num_triplets=5000, testing=False)
@@ -49,7 +44,7 @@ def main():
 
     toolbox = initialize_toolbox(number_of_qubits)
     EVO = genetic_algorithm.Evolution(triplets)
-    pop, fitness_ranks = EVO.evolution(dataset, toolbox)  # Evolved population
+    pop, fitness_ranks = EVO.evolution(dataset, toolbox)
     runtime2 = round(time.perf_counter() - runtime1, 2)
     print("runtime evolution", runtime2)
     final_individual = pop
