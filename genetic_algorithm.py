@@ -197,32 +197,4 @@ class Evolution:
     def mutate(self, individual):
         return mutate_ind(individual)
 
-    def run(self):
-        population = self.generate_population(self.population_size)
-        fitnesses = self.evaluate_individuals(population)
-        for ind, fit in zip(population, fitnesses):
-            ind.fitness.values = (fit,)
-
-        for gen in tqdm(range(self.number_of_generations)):
-            offspring = []
-            for _ in range(self.population_size):
-                if random.random() < self.crossover_rate:
-                    offspring1, offspring2 = self.crossover(*random.sample(population, 2))
-                else:
-                    offspring1 = random.choice(population).deepcopy()
-                    offspring2 = random.choice(population).deepcopy()
-                offspring1 = self.mutate(offspring1)
-                offspring2 = self.mutate(offspring2)
-                offspring.append(offspring1)
-                offspring.append(offspring2)
-
-            fitnesses = self.evaluate_individuals(offspring)
-            for ind, fit in zip(offspring, fitnesses):
-                ind.fitness.values = (fit,)
-
-            combined_population = population + offspring
-            pareto_front = sort_nondominated(combined_population, len(population), first_front_only=True)
-            population = random.sample(pareto_front[0], self.population_size)
-
-        return population
 
