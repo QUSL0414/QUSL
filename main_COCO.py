@@ -25,19 +25,14 @@ def main():
         base_path = fr"D:\pycharm_projects\SLIQ-PENNYLANE_mnist/"
     elif device == 'linux':
         base_path = "/home/ubuntu/ylh/"
-        # base_path = "/home/ubuntu/ylh/SLIQ-PENNYLANE_mnist/"
         os.environ['CUDA_VISIBLE_DEVICES'] = '0'
     else:
         raise ValueError("Unknown device type")
 
     start = time.perf_counter()
-
-    """Runs the genetic algorithm based on the global constants
-    """
-    # Initialize parser
+    
     parser = argparse.ArgumentParser()
 
-    # Adding optional argument
     parser.add_argument("-p", "--POPSIZE", help="Size of the population")
     parser.add_argument("-g", "--NGEN", help="The number of generations")
     parser.add_argument("-q", "--NQUBIT", help="The number of qubits")
@@ -45,15 +40,14 @@ def main():
     # FIXME -id is illegal (it means -i -d)
     parser.add_argument("-id", "--ID", help="ID of the saved file")
 
-    # Read arguments from command line
+
     args = parser.parse_args()
-    # population_size = int(args.POPSIZE) if args.POPSIZE else POPULATION_SIZE
-    # number_of_generations = int(args.NGEN) if args.NGEN else NUMBER_OF_GENERATIONS
+    
     number_of_qubits = int(args.NQUBIT) if args.NQUBIT else NUMBER_OF_QUBITS
     triplets, image_indices = data_load_ladscape.generate_landscape_triplets(base_path, dataset, num_triplets=5000, testing=False)
     toolbox = initialize_toolbox(number_of_qubits)
     EVO = genetic_algorithm.Evolution(triplets)
-    pop, fitness_ranks = EVO.evolution(dataset, toolbox)  # Evolved population
+    pop, fitness_ranks = EVO.evolution(dataset, toolbox)
     final_individual = pop
     print('last population', final_individual)
     print('fitness of last population', fitness_ranks)
@@ -84,7 +78,7 @@ def main():
             num_of_cnot = data_load_ladscape.cnot(base_path, dataset, i, j)
             num_cnot.append(num_of_cnot)
             print(f'Individual {j}_{i}, cnot count: {num_of_cnot}')
-        # Save to CSV file
+
         with open(f'{base_path}/result/{dataset}/csv/combined_relatative_num_cnot_j{j}.csv', 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(['relatative', 'num_cnot'])
@@ -95,11 +89,9 @@ def main():
         file_name = fr'{base_path}/result/{dataset}/csv/combined_relatative_num_cnot_j{j}.csv'
         df = pd.read_csv(file_name)
 
-        # Extract fitness data from another file
         file_name2 = fr'{base_path}/result/{dataset}/csv/{dataset}_fitness_values_ranks_{j}.csv'
         fitness_df = pd.read_csv(file_name2)
 
-        # Place fitness data in front of 'relatative' column
         new_df = pd.DataFrame()
         new_df[f'generation{j}'] = list(range(1, 21))
         new_df[f'fitness{j}'] = fitness_df['Fitness Value']
@@ -109,7 +101,7 @@ def main():
 
         combined_df = pd.concat([combined_df, new_df], axis=1)
 
-    # Save processed data to a new file
+
     combined_df.to_excel(f'{base_path}/result/{dataset}/csv/combined_Fitness_relatative_cnot_combined.xlsx',
                        index=False)
 
