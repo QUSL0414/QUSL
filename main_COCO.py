@@ -1,7 +1,6 @@
 import concurrent.futures
 import pandas as pd
 import csv
-import data_processing
 import data_load_ladscape
 from functools import partial
 from multiprocessing import Pool
@@ -10,17 +9,16 @@ from qiskit.visualization import circuit_drawer
 import os
 from os import listdir
 import genetic_algorithm
-# from datetime import datetime
 from os.path import isfile, join
 import argparse
 import time
 from constants import NUMBER_OF_GENERATIONS, NUMBER_OF_QUBITS, POPULATION_SIZE, NUM_TRIPLETS
-from toolbox import initialize_toolbox  # also initializes creator
+from toolbox import initialize_toolbox
 
 
 def main():
-    dataset = 'DISC21'
-    device = 'window'  # Assume the device is either windows or linux
+    dataset = 'COCO'
+    device = 'window'
     if device == 'window':
         base_path = fr"D:\pycharm_projects\SLIQ-PENNYLANE_mnist/"
     elif device == 'linux':
